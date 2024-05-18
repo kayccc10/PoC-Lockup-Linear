@@ -1,3 +1,14 @@
+/* Proof of Concept for Reentrancy Vulnerability
+Overview:
+This vulnerability allows an attacker to exploit the contract by repeatedly calling a function before the previous execution is completed, enabling them to drain funds from the contract.
+
+Actors:
+Attacker: The entity exploiting the reentrancy vulnerability to repeatedly withdraw funds.
+Victim: Users of the SablierV2LockupLinear contract who have their funds deposited in the contract.
+Protocol: The SablierV2LockupLinear contract, which is vulnerable to reentrancy attacks.   
+*/
+
+
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity >=0.8.22;
 
