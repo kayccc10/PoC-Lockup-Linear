@@ -1,3 +1,14 @@
+/* Proof of Concept for Unauthorized Access Control Vulnerability
+Overview:
+This vulnerability allows an attacker to call restricted functions without proper access control, potentially manipulating the contract state or transferring funds.
+
+Actors:
+Attacker: The entity exploiting the access control vulnerability to manipulate the contract.
+Victim: Users of the SablierV2LockupLinear contract who rely on proper access controls.
+Protocol: The SablierV2LockupLinear contract, which lacks adequate access control mechanisms.
+*/
+
+//Test case
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity >=0.8.22;
 
@@ -20,6 +31,7 @@ contract UnauthorizedAccessExploit {
         lockupContract.call(abi.encodeWithSignature("createWithDurations(...)"));
     }
 }
+
 
 // PoC Contract: Represents the SablierV2LockupLinear contract without access control
 contract SablierV2LockupLinear {
