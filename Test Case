@@ -29,3 +29,28 @@ contract ReentrancyExploit {
         }
     }
 }
+
+
+// PoC Contract: Represents the SablierV2LockupLinear contract with the reentrancy vulnerability
+contract SablierV2LockupLinear {
+    using SafeERC20 for IERC20;
+
+    mapping(uint256 => uint256) public balances;
+    uint256 public nextStreamId;
+
+    function createWithDurations(address sender, address recipient, uint256 totalAmount, IERC20 asset) external {
+        uint256 streamId = nextStreamId;
+        nextStreamId++;
+
+        // Initial state change: store the deposit
+        balances[streamId] = totalAmount;
+
+        // Interaction: transfer the deposit amount (vulnerable to reentrancy)
+        asset.safeTransferFrom(sender, address(this), totalAmount);
+
+        // Final state change: emit an event
+        emit StreamCreated(streamId, sender, recipient, totalAmount);
+    }
+
+    event StreamCreated(uint256 indexed streamId, address indexed sender, address indexed recipient, uint256 totalAmount);
+}
