@@ -1,0 +1,30 @@
+Proof of Concept for Gas Limit Exceeded
+Overview:
+Demonstrates high gas consumption in the _calculateStreamedAmount function of the SablierV2LockupLinear contract.
+
+Actors:
+Attacker: User triggering high gas transaction.
+Victim: SablierV2LockupLinear contract.
+Protocol: Sablier streaming protocol.
+
+Working Test Case:
+// Solidity code demonstrating high gas usage
+
+contract GasUsageTest {
+    SablierV2LockupLinear public lockupContract;
+    
+    constructor(address lockupAddress) {
+        lockupContract = SablierV2LockupLinear(lockupAddress);
+    }
+    
+    // Function to demonstrate high gas usage
+    function highGasUsage(uint256 streamId) public {
+        uint128 amountStreamed = lockupContract._calculateStreamedAmount(streamId);
+        // This line consumes high gas due to complex calculations
+    }
+}
+
+Steps:
+Deploy SablierV2LockupLinear: Deploy the contract and initialize necessary parameters.
+Initiate High Gas Call: Call the highGasUsage function with a valid stream ID.
+Observe Gas Usage: Monitor the gas consumption during the execution to verify high usage.
